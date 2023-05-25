@@ -91,6 +91,7 @@ class BookingModal extends Component {
     let date = new Date(this.state.birthday).getTime();
     let timeString = this.buildTimeBooking(this.props.dataTime)
     let doctorName = this.buildDoctorName(this.props.dataTime)
+ 
     let res = await postPatientBookAppointment({
       fullName: this.state.fullName,
       phoneNumber: this.state.phoneNumber,
@@ -98,7 +99,8 @@ class BookingModal extends Component {
       address: this.state.address,
       reason: this.state.reason,
       selectedGender: this.state.selectedGender.value,
-      date : date,
+      date : this.props.dataTime.date,
+      birthday : date,
       doctorId: this.state.doctorId,
       timeType : this.state.timeType,
       language : this.props.language,
@@ -170,6 +172,8 @@ class BookingModal extends Component {
                 doctorId={doctorId}
                 isShowDescriptionDoctor={false}
                 dataTime={dataTime}
+                isShowLinkDetails={false}
+                isShowPrice={true}
               />
             </div>
             <div className="row">

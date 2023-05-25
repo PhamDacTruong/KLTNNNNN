@@ -7,6 +7,7 @@ import { getProfileDoctorDoctorById } from "../../../services/userService";
 import NumberFormat from "react-number-format";
 import _ from 'lodash'
 import moment from "moment/moment";
+import { Link } from "react-router-dom";
 class ProfileDoctor extends Component {
   constructor(props) {
     super(props);
@@ -21,7 +22,16 @@ class ProfileDoctor extends Component {
       dataProfile: data,
     });
   }
-
+  async componentDidUpdate(prevProps, prevState, snapshot) {
+    if (this.props.language !== prevProps.language) {
+    }
+    if (this.props.doctorId !== prevProps.doctorId) {
+      let data = await this.getInforDoctor(this.props.doctorId);
+      this.setState({
+        dataProfile: data,
+      });
+    }
+  }
   getInforDoctor = async (id) => {
     let result = {};
     if (id) {
@@ -32,10 +42,7 @@ class ProfileDoctor extends Component {
     }
     return result;
   };
-  async componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.language !== prevProps.language) {
-    }
-  }
+ 
   renderTimeBooking = (dataTime) => {
     let { language } = this.props;
     if(dataTime &&  !_.isEmpty(dataTime)){
@@ -60,15 +67,14 @@ class ProfileDoctor extends Component {
   }
   render() {
     let { dataProfile } = this.state;
-    let { language, isShowDescriptionDoctor, dataTime } = this.props;
-   
+    let { language, isShowDescriptionDoctor, dataTime, isShowLinkDetails, isShowPrice, doctorId } = this.props;
     let nameVi = "",
       nameEn = "";
     if (dataProfile && dataProfile.positionData) {
       nameVi = `${dataProfile.positionData.valueVi},  ${dataProfile.lastName} ${dataProfile.firstName}`;
       nameEn = `${dataProfile.positionData.valueEn},  ${dataProfile.firstName} ${dataProfile.lastName}`;
     }
-    console.log('check',dataTime)
+   
     return (
       <div className="profile-doctor-container">
         <div className="intro-doctor">
@@ -102,6 +108,8 @@ class ProfileDoctor extends Component {
         </div>
        
       </div>
+      {isShowLinkDetails === true && <div className="view-detail-doctor"> <Link to = {`/detail-doctor/${doctorId}`}>Xem thêm</Link></div>}
+      {isShowPrice === true && 
       <div className="price">
       <FormattedMessage id = "patient.booking-modal.price"/> : 
           {dataProfile && dataProfile.Doctor_Infor && language === LANGUAGES.VI &&
@@ -126,6 +134,7 @@ class ProfileDoctor extends Component {
           />
      }
         </div>
+  }
       </div>
       
     );

@@ -1,48 +1,49 @@
-import specialtyService from "../services/specialtyService"
-let createSpecialty =  async (req, res) => {
-    try{
-        let info = await specialtyService.createSpecialty(req.body)
-        return res.status(200).json(info);
-    }catch(e){
-   
-        return res.status(200).json({
-            errCode : -1,
-            errMessage : 'Error from server'
-         
-        })
-        
-    }
-}
-let getAllSpecialty =  async (req, res) => {
-    try{
-        let info = await specialtyService.getAllSpecialty()
-        return res.status(200).json(info);
-    }catch(e){
+import clinicService from "../services/clinicService"
+let createClinic =  async (req, res) => {
     
+    try{
+        let info = await clinicService.createClinic(req.body)
+        return res.status(200).json(info);
+    }catch(e){
+        console.log(e);
         return res.status(200).json({
             errCode : -1,
             errMessage : 'Error from server'
-         
         })
         
     }
 }
-let getDetailSpecialtyById =  async (req, res) => {
+let getAllClinic =  async (req, res) => {
+    
     try{
-        let info = await specialtyService.getDetailSpecialtyById(req.query.id, req.query.location)
+        let info = await clinicService.getAllClinic(req.body)
         return res.status(200).json(info);
     }catch(e){
-     
+        console.log(e);
         return res.status(200).json({
             errCode : -1,
             errMessage : 'Error from server'
-         
+        })
+        
+    }
+}
+let getDetailClinicById =  async (req, res) => {
+    
+    try{
+        let info = await clinicService.getDetailClinicById(req.query.id);
+        return res.status(200).json(info);
+    }catch(e){
+        console.log(e);
+        return res.status(200).json({
+            errCode : -1,
+            errMessage : 'Error from server'
         })
         
     }
 }
 module.exports = {
-   createSpecialty : createSpecialty,
-   getAllSpecialty : getAllSpecialty,
-   getDetailSpecialtyById : getDetailSpecialtyById
-}
+    createClinic : createClinic,
+    getAllClinic : getAllClinic,
+    getDetailClinicById : getDetailClinicById
+   
+ }
