@@ -4,10 +4,12 @@ import { FormattedMessage } from "react-intl";
 import "./ManagePatien.scss";
 
 import DatePicker from '../../../components/Input/DatePicker'
-import { getAllPatientForDoctor } from "../../../services/userService";
+import { getAllPatientForDoctor, postSendRemedy} from "../../../services/userService";
 import moment from "moment";
 import { LANGUAGES } from "../../../utils";
 import RemedyModal from "./RemedyModal";
+import { toast } from "react-toastify";
+import LoadingOverlay from "react-loading-overlay";
 class ManagePatient extends Component {
   constructor(props) {
     super(props);
@@ -15,19 +17,21 @@ class ManagePatient extends Component {
       currentDate: moment(new Date()).startOf('day').valueOf(),
       dataPatient : [],
       isOpenRemedyModal: false,
-      dataModal : {}
+      dataModal : {},
+      isShowLoading : false
     };
 
   }
 
   async componentDidMount() {
+   
+    this.getDataPatient()
+  }
+
+  getDataPatient =  async () => {
     let {user} = this.props;
     let {currentDate} = this.state;
     let formatedDate = new Date(currentDate).getTime();
-    this.getDataPatient(user, formatedDate)
-  }
-
-  getDataPatient =  async (user, formatedDate) => {
     let res = await getAllPatientForDoctor({
       doctorId : user.id,
       date : formatedDate
@@ -46,18 +50,18 @@ class ManagePatient extends Component {
   handleOnChangeDate = (date) => {
     this.setState({
       currentDate : date[0]
-    }, () => {
-      let {user} = this.props;
-      let {currentDate} = this.state;
-      let formatedDate = new Date(currentDate).getTime();
-      this.getDataPatient(user, formatedDate)
+    }, async() => {
+     
+      await this.getDataPatient()
     })
   }
   handleBtnConfirm = (item) => {
     let data = {
       doctorId : item.doctorId,
       patientId : item.patientId,
-      email  : item.patientData.email
+      email  : item.patientData.email,
+      timeType : item.timeType,
+      patientName : item.patientData.firstName
     }
     this.setState({
       isOpenRemedyModal : true,
@@ -70,8 +74,34 @@ class ManagePatient extends Component {
       dataModal : {}
     })
   }
-  sendRemedy = (dataFromModal) => {
-    console.log('partien check modal', dataFromModal)
+  sendRemedy = async(dataChild) => {
+    let { dataModal } = this.state;
+    this.setState({
+      isShowLoading : true
+    })
+    let res = await postSendRemedy({
+        email : dataChild.email,
+        imgBase64 : dataChild.imgBase64,
+        doctorId : dataModal.doctorId,
+        patientId : dataModal.patientId,
+        timeType : dataModal.timeType,
+        language : this.props.language,
+        patientName : dataModal.patientName
+    })
+    if(res && res.errCode === 0){
+      this.setState({
+        isShowLoading : false
+      })
+      toast.success('Send Remedy Success');
+      this.closeRemedyModal()
+      await this.getDataPatient();
+    }else{
+      this.setState({
+        isShowLoading : false
+      })
+      toast.error('Something went wrong')
+      console.log(res)
+    }
 
   }
   render() {
@@ -79,6 +109,11 @@ class ManagePatient extends Component {
     let { language } = this.props;
     return (
       <>
+      <LoadingOverlay
+        active = { this.state.isShowLoading}
+        spinner
+        text = 'Loading....'
+        >
       <div className="manage-patient-container">
         <div className="m-s-title">
           Quản lí bệnh nhân khám bệnh
@@ -122,9 +157,9 @@ class ManagePatient extends Component {
                   )
                 })
                 :
-                <td>
-                  No data
-                </td>
+                <tr>
+                 <td colSpan="6" style={{ textAlign : "center"}}> Hiện tại ngày này chưa có lịch khám</td>
+                </tr>
               }
                
                 </tbody>
@@ -139,6 +174,8 @@ class ManagePatient extends Component {
       closeRemedyModal = {this.closeRemedyModal}
       sendRemedy = {this.sendRemedy}
       />
+
+      </LoadingOverlay>
       </>
     );
   }

@@ -45,8 +45,9 @@
             "crud-redux" : "Doctor management",
             "manage-clinic" : "Clinic manager",
             "clinic" : "Clinic",
-            "specialty" : "Specialty",
-            "manage-specialty" : "Specialized management",
+            "specialty" : "Specialized management",
+            "manage-specialty" : "Add or remove specialties",
+            "edit-specialty" : "Edit specialties information",
             "manage-handbook" : "Handbook Management",
             "handbook" : "Handbook"
            
@@ -111,6 +112,10 @@
             "cancel" : "Cancel",
             "free"  : "Free booking",
             "price" : "Examination price"
+        },
+        "specialty" : {
+            "save" :"Save",
+            "edit" :"Edit"
         }
         
     },

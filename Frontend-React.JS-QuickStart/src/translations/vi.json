@@ -35,6 +35,7 @@
             "clinic" : "Phòng khám",
             "specialty" : "Chuyên khoa",
             "manage-specialty" : "Quản lí chuyên khoa",
+            "edit-specialty" : "Chỉnh sửa thông tin chuyên khoa",
             "manage-handbook" : "Quản lí cẩm nang",
             "handbook" : "Cẩm nang"
         },
@@ -101,7 +102,11 @@
             "cancel" : "Hủy",
             "free"  : "Miễn phí đặt lịch",
             "price" : "Giá khám"
-            }
+            },
+        "specialty" : {
+            "save" :"Lưu",
+            "edit" :"Chỉnh sửa"
+        }
         
     },
     "admin" : {

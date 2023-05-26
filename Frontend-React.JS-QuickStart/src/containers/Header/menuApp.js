@@ -43,6 +43,7 @@ export const adminMenu = [
         name: "menu.admin.manage-clinic",
         link: "/system/manage-clinic",
       },
+      
     ],
   },
 
@@ -54,6 +55,7 @@ export const adminMenu = [
         name: "menu.admin.manage-specialty",
         link: "/system/manage-specialty",
       },
+     
     ],
   },
   {

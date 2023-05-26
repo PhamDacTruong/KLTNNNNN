@@ -1,8 +1,8 @@
 import actionTypes from './actionTypes';
 import { toast } from 'react-toastify';
 import { getAllCodeService,createNewUserService,
-    getAllUsers, deleteUserService, editUserService, 
-    getDoctorHomeService, getAllDoctors,saveDetailDoctorService, getAllSpecialty, getAllClinic} from '../../services/userService';
+    getAllUsers, deleteUserService, editUserService, editSpecialtyService,
+    getDoctorHomeService, getAllDoctors,saveDetailDoctorService, getAllSpecialty, getAllClinic, deleteSpecialtyService} from '../../services/userService';
 // export const fetchGenderStart = () => ({
 //     type: actionTypes.FETCH_GENDER_START,
 // })
@@ -373,4 +373,102 @@ export const getRequireDoctorInforSuccess =  (allRequiredData) => ({
 
 export const getRequireDoctorInforFailed = () => ({
     type: actionTypes.FETCH_REQUIRE_DOCTOR_INFO_FAILED
+})
+
+
+
+export const fetchSpecialtyStart = () => {
+    return async(dispatch,getState) => {
+        try {
+
+            let res = await getAllSpecialty("ALL")
+            if(res && res.errCode === 0 ){
+                dispatch(fetchAllSpecialtySuccess(res.data.reverse())) ;
+            }else{
+                dispatch(fetchAllSpecialtyFailed()) ;
+           
+            }
+    
+        }catch(e){
+            dispatch(fetchAllSpecialtyFailed()) ;
+            console.log('fetchAllSpecialtyFailed', e)
+        }
+    }
+}
+
+export const fetchAllSpecialtySuccess =  (data) => ({
+    type: actionTypes.FETCH_ALL_SPECIALTY_SUCCESS,
+    specialty : data
+})
+
+export const fetchAllSpecialtyFailed = () => ({
+    type: actionTypes.FETCH_ALL_SPECIALTY_FAILED
+})
+
+
+
+export const deleteSpecialty = (specialtyId) => {
+    return async(dispatch,getState) => {
+        try {
+
+            let res = await deleteSpecialtyService(specialtyId);
+      
+            if(res && res.errCode === 0 ){
+                toast.success("Delete user successfully")
+                dispatch(deleteSpecialtySuccess()) ;
+                dispatch(fetchSpecialtyStart());
+            }else{
+                toast.error("Fetch all  user error");
+                dispatch(deleteSpecialtyFailed()) ;
+           
+            }
+    
+        }catch(e){
+            toast.error("Fetch all  user error");
+            dispatch(deleteSpecialtyFailed()) ;
+            console.log('deleteSpecialtyFailed', e)
+        }
+    }
+
+}
+
+
+export const deleteSpecialtySuccess =  () => ({
+    type: actionTypes.DELETE_SPECIALTY_SUCCESS,
+})
+
+export const deleteSpecialtyFailed = () => ({
+    type: actionTypes.DELETE_SPECIALTY_FAILED
+})
+
+export const editSpecialty = (data) => {
+    return async(dispatch,getState) => {
+        try {
+
+            let res = await editSpecialtyService(data);
+      
+            if(res && res.errCode === 0 ){
+                toast.success("Update the specialty successfully")
+                dispatch(editSpecialtySuccess()) ;
+                dispatch(fetchSpecialtyStart());
+            }else{
+                toast.error("Update the specialty error")
+                dispatch(editSpecialtyFailed()) ;
+           
+            }
+    
+        }catch(e){
+            toast.error("Update the specialty error");
+            dispatch(editSpecialtyFailed()) ;
+            console.log('editAllUsersFailed', e)
+        }
+    }
+
+}
+export const editSpecialtySuccess =  () => ({
+    type: actionTypes.EDIT_SPECIALTY_SUCCESS,
+})
+
+export const editSpecialtyFailed = () => ({
+    type: actionTypes.EDIT_SPECIALTY_FAILED
 })

@@ -2,11 +2,16 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { FormattedMessage } from "react-intl";
 import './ManageSpecialty.scss';
-import { LANGUAGES, CommonUtils } from "../../../utils";
+import { LANGUAGES, CommonUtils, CRUD_ACTIONS } from "../../../utils";
 import MarkdownIt from "markdown-it";
 import MdEditor from "react-markdown-editor-lite";
-import { createNewSpecialty } from '../../../services/userService';
-import { toast } from "react-toastify"
+import { createNewSpecialty, editSpecialtyService } from '../../../services/userService';
+import { toast } from "react-toastify";
+import * as actions from "../../../store/actions";
+
+import TableSpecialty from "./TableSpecialty/TableSpecialty";
+
+
 const mdParser = new MarkdownIt(/* Markdown-it options */);
 class ManageSpecialty extends Component {
   constructor(props) {
@@ -15,14 +20,26 @@ class ManageSpecialty extends Component {
       name : '',
       imageBase64 : '',
       descriptionHTML :'',
-      descriptionMarkdown :''
+      descriptionMarkdown :'',
+      action : '',
+      specialtyId : '',
+      
     };
   }
 
-  async componentDidMount() {}
+  async componentDidMount() {
+
+  }
 
   async componentDidUpdate(prevProps, prevState, snapshot) {
-    if (this.props.language !== prevProps.language) {
+    if (prevProps.listSpecialty !== this.props.listSpecialty) {
+      this.setState({
+        action  : CRUD_ACTIONS.CREATE,
+          name : '',
+          imageBase64 : '',
+          descriptionHTML :'',
+          descriptionMarkdown :''
+      });
     }
    
   }
@@ -44,30 +61,71 @@ class ManageSpecialty extends Component {
     let file = data[0];
     if (file) {
       let base64 = await CommonUtils.getBase64(file);
+      let ObjectUrl = URL.createObjectURL(file);
       this.setState({
         imageBase64: base64,
+        previewImgURL: ObjectUrl,
 
       });
     }
   };
   handleSaveNewSpecialty =async () => {
     let res = await createNewSpecialty(this.state);
-    if(res && res.errCode ===0 ) {
-      toast.success('Add new specialty successfully')
-      this.setState({
-        name : '',
-        imageBase64 : '',
-        descriptionHTML :'',
-        descriptionMarkdown :''
-      })
-    }else{
-      toast.error('Add new specialty error ')
-      console.log('check',res)
-    }
-
-
-
+     let { action } = this.state;
   
+    if (action === CRUD_ACTIONS.CREATE) {
+      if(res && res.errCode ===0 ) {
+        toast.success('Add new specialty successfully')
+        this.setState({
+          name : '',
+          imageBase64 : '',
+          descriptionHTML :'',
+          descriptionMarkdown :''
+        })
+      }else{
+        toast.error('Add new specialty error ')
+      }
+  }
+  if(action === CRUD_ACTIONS.EDIT){
+    this.props.editSpecialtyRedux({
+      name : this.state.name,
+      imageBase64 : this.state.imageBase64,
+      descriptionHTML :this.state.descriptionHTML,
+      descriptionMarkdown :this.state.descriptionMarkdown,
+      id : this.state.specialtyId
+    })
+  }
+  // if(res && res.errCode ===0 && action === CRUD_ACTIONS.CREATE) {
+  //   toast.success('Add new specialty successfully')
+  //   this.setState({
+  //     name : '',
+  //     imageBase64 : '',
+  //     descriptionHTML :'',
+  //     descriptionMarkdown :''
+  //   })
+  // }else{
+  //   toast.error('Add new specialty error ')
+  // }
+    setTimeout(() =>{
+      this.props.fetchSpecialtyRedux();
+    },1000)
+    
+  }
+  handleEditSpecialtyFromParent = (specialty) => {
+    console.log('check',specialty)
+    let imageBase64 = '';
+    if(specialty.image){
+        imageBase64 = new Buffer(specialty.image, 'base64').toString('binary');
+    }
+    this.setState({
+      name : specialty.name,
+      descriptionHTML: specialty.descriptionHTML,
+      descriptionMarkdown: specialty.descriptionMarkdown,
+      imageBase64: '',
+      previewImgURL : imageBase64,
+      action : CRUD_ACTIONS.EDIT,
+      specialtyId : specialty.id
+    });
   }
 
   render() {
@@ -97,13 +155,27 @@ class ManageSpecialty extends Component {
           />
           </div>
           <div className="col-12">
-              <button className="btn-save"
+              <button className={this.state.action === CRUD_ACTIONS.EDIT ? "btn-edit":"btn-save"}
               onClick={() => this.handleSaveNewSpecialty()}
-              >Save</button>
+              >
+                {this.state.action === CRUD_ACTIONS.EDIT ? 
+                
+                  <FormattedMessage id="patient.specialty.edit" />
+                :
+                  <FormattedMessage id="patient.specialty.save" />
+                }
+              </button>
           </div>
     
         </div>
-       
+        <div className="col-12 mb-5">
+          <TableSpecialty 
+          action = {this.state.action}
+          handleEditSpecialtyFromParent = {this.handleEditSpecialtyFromParent}
+          />
+        </div>
+     
+
       </div>
     );
   }
@@ -112,11 +184,15 @@ class ManageSpecialty extends Component {
 const mapStateToProps = (state) => {
   return {
     language: state.app.language,
+    listSpecialty: state.admin.specialty,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {};
+  return {
+    fetchSpecialtyRedux: () => dispatch(actions.fetchSpecialtyStart()),
+    editSpecialtyRedux : (data) => dispatch(actions.editSpecialty(data)),
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ManageSpecialty);
